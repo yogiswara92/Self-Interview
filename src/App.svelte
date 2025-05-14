@@ -31,9 +31,7 @@
           .join('');
         transcript = result;
       };
-
       // speakQuestion(question);
-
       recognition.onerror = e => console.error('Recognition error:', e);
     }
   });
@@ -141,7 +139,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2rem;
+    padding: 1rem;
     text-align: center;
     justify-content: center;
   }
@@ -153,6 +151,7 @@
 
   .question {
     font-size: 1.5rem;
+    font-size:20px;
     margin-bottom: 2rem;
     max-width: 600px;
   }
@@ -223,7 +222,7 @@
 
   {#if transcript}
     <div class="transcript" >
-      <strong>Transkrip:</strong><br />
+      <strong>Jawaban anda:</strong><br />
       {transcript}
     </div>
   {/if}
