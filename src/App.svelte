@@ -24,7 +24,7 @@
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = 'id-ID';
-
+ 
       recognition.onresult = (event: SpeechRecognitionEvent) => {
         const result = Array.from(event.results)
           .map(res => res[0].transcript)
@@ -227,18 +227,7 @@
     </div>
   {/if}
 
-  <div class="input-nama" style="margin-bottom: 1.5rem;">
-    <label for="name">Peserta:</label><br />
-    <input
-      id="name"
-      type="text"
-      bind:value={name}
-      required
-      disabled={nameLocked}
-      style="padding: 0.5rem; border-radius: 8px; border: none; width: 250px;"
-      placeholder="Tuliskan nama Anda disini"
-    />
-  </div>
+  
 
   <div class="controls">
     {#if !recording}
