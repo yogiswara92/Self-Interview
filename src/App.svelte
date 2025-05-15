@@ -10,10 +10,17 @@
   let transcript = '';
   let name = '';
   let nameLocked = false;
+  let model = "model1";
   let buttonLock=true;
-  let job_position ='Account Manager';
-  let syarat = 'Berpengalaman 2 tahun di B2B sales';
-  let question ="Hi, salam kenal. Boleh perkenalan dan menceritakan pengalaman anda yang berkaitan dengan "+job_position+"?";
+  // Array posisi pekerjaan
+  const jobs = [
+    { position: "Account Manager", requirements: "Berpengalaman 2 tahun di B2B sales" },
+    { position: "Digital Marketing", requirements: "Menguasai Digital Ads, SEO, dan SEM" }
+  ];
+  let syarat = '';
+  let job_position =jobs[0].position;
+
+  let question ="";
 
   let recognition: SpeechRecognition;
   const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -35,6 +42,21 @@
       recognition.onerror = e => console.error('Recognition error:', e);
     }
   });
+
+  function handleJobChange(event) {
+    const selected = jobs.find(j => j.position === event.target.value);
+    job_position = selected.position;
+    syarat = selected.requirements;
+  }
+
+  function startInterview(){
+    if (!name || name.trim() === '') {
+      alert('Nama harus diisi sebelum memulai interview.');
+      return;
+    }
+    nameLocked = true;
+    question = "Hi "+name+", salam kenal. Boleh perkenalan dan menceritakan pengalaman anda yang berkaitan dengan "+job_position+"?";
+  }
 
   async function startRecording() {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -76,6 +98,7 @@
 
     const formData = new FormData();
     formData.append('name', name);
+    formData.append("model", model);
     // formData.append('audio', audioBlob, 'interview.webm');
     formData.append('timestamp', new Date().toISOString());
     formData.append('question', question);
@@ -88,7 +111,7 @@
       body: formData
     });
 
-    nameLocked = true;
+    //nameLocked = true;
     alert('Jawaban berhasil dikirim');
 
     const data = await res.json();
@@ -187,6 +210,14 @@
     cursor: not-allowed;
   }
 
+  input, select {
+    padding: 0.5rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    width: 250px;
+    text-align: center;
+  }
+
   input[disabled] {
     background-color: #ffffff10;
     color: white;
@@ -211,12 +242,50 @@
 
 <div class="container">
   <img src="/logo.png" alt="Logo" class="logo" />
+{#if !nameLocked}
+    <div class="input-nama" >
+      <label for="name">Nama Peserta:</label><br />
+      <input
+        id="name"
+        type="text"
+        bind:value={name}
+        required
+        disabled={nameLocked}
+        style="padding: 0.5rem; border-radius: 8px; border: none; width: 230px;"
+        placeholder="Tuliskan nama Anda disini"
+      />
+    </div>
+    <!-- Pilih Pekerjaan -->
+    <div >
+      <label>Posisi Pekerjaan:</label><br />
+      <select on:change={handleJobChange}>
+        {#each jobs as job}
+          <option value={job.position}>{job.position}</option>
+        {/each}
+      </select>
+    </div>
+    <!-- FORM SELECT MODEL -->
+    <div class="form-model" >
+      <label for="model">Pilih Model:</label><br />
+      <select id="model" bind:value={model}>
+        <option value="model1">Model 1</option>
+        <option value="model2">Model 2</option>
+      </select>
+    </div>
+    <br />
+    <div class="controls">      
+      <button on:click={startInterview} style="width:200px" >
+        <i class="fas fa-paper-plane"></i> Mulai Interview
+      </button>
+    </div>
+    
+  {:else}
 
   <div class="question">    
     {question}
   </div>
 
-{#if recording}
+  {#if recording}
     <div class="timer">Durasi: {timer} detik</div>
   {/if}
 
@@ -225,20 +294,7 @@
       <strong>Jawaban anda:</strong><br />
       {transcript}
     </div>
-  {/if}
-
-  <div class="input-nama" style="margin-bottom: 1.5rem;">
-    <label for="name">Peserta:</label><br />
-    <input
-      id="name"
-      type="text"
-      bind:value={name}
-      required
-      disabled={nameLocked}
-      style="padding: 0.5rem; border-radius: 8px; border: none; width: 250px;"
-      placeholder="Tuliskan nama Anda disini"
-    />
-  </div>
+  {/if}  
 
   <div class="controls">
     {#if !recording}
@@ -255,5 +311,5 @@
     </button>
   </div>
 
-  
+{/if} 
 </div>
