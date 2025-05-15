@@ -10,6 +10,7 @@
   let transcript = '';
   let name = '';
   let nameLocked = false;
+  let isFinished=false;
   let model = "model1";
   let buttonLock=true;
   // Array posisi pekerjaan
@@ -106,6 +107,8 @@
     formData.append('syarat', syarat);
     formData.append('job_position', job_position);
 
+    //production: https://n8n.yesvara.com/webhook/interview-submit
+    //testing: https://n8n.yesvara.com/webhook-test/interview-submit
     const res=await fetch('https://n8n.yesvara.com/webhook/interview-submit', {
       method: 'POST',
       body: formData
@@ -116,15 +119,21 @@
 
     const data = await res.json();
 
+    if (data){
+      console.log("response:", data);
+    }
     // ✅ Update pertanyaan berikutnya
     const nextQuestion = data[0]?.next_question;
 
     if (nextQuestion) {
       question = nextQuestion; 
       buttonLock=true;
-      console.log("response:", data);
       console.log("next_question:", data[0]?.next_question);
       transcript='';
+    }
+
+    if(data[0]?.isFinished){
+      isFinished=true;
     }
 
     
@@ -296,20 +305,21 @@
     </div>
   {/if}  
 
-  <div class="controls">
-    {#if !recording}
-      <button on:click={startRecording}>
-        <i class="fas fa-microphone"></i> Jawab
+  {#if !isFinished}
+    <div class="controls">
+      {#if !recording}
+        <button on:click={startRecording}>
+          <i class="fas fa-microphone"></i> Jawab
+        </button>
+      {:else}
+        <button on:click={stopRecording} style="background-color:red">
+          <i class="fas fa-stop"></i> Cukup
+        </button>
+      {/if}
+      <button on:click={sendAudio} disabled={buttonLock}>
+        <i class="fas fa-paper-plane"></i> Kirim
       </button>
-    {:else}
-      <button on:click={stopRecording} style="background-color:red">
-        <i class="fas fa-stop"></i> Cukup
-      </button>
-    {/if}
-    <button on:click={sendAudio} disabled={buttonLock}>
-      <i class="fas fa-paper-plane"></i> Kirim
-    </button>
-  </div>
-
+    </div>
+  {/if}
 {/if} 
 </div>
