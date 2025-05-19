@@ -26,6 +26,12 @@
   let recognition: SpeechRecognition;
   const SpeechRecognition = window.SpeechRecognition || (window as any).webkitSpeechRecognition;
 
+  // Scroll ke bawah setiap kali jawaban berubah
+  let textareaEl: HTMLTextAreaElement | null = null;
+  $: if (textareaEl && transcript) {
+    textareaEl.scrollTop = textareaEl.scrollHeight;
+  }
+
   onMount(() => {
     if (SpeechRecognition) {
       recognition = new SpeechRecognition();
@@ -244,8 +250,19 @@
     padding: 1rem;
     border: 1px solid #ffffff30;
     border-radius: 10px;
+    width:90%;
     max-width: 600px;
     margin-bottom:15px;
+  }
+
+  textarea.editable-text {
+    border: none;
+    resize: vertical;
+    background-color: transparent;
+    color: white;
+    width: 100%;
+    max-width: 600px; 
+    outline: none;
   }
 </style>
 
@@ -266,8 +283,8 @@
     </div>
     <!-- Pilih Pekerjaan -->
     <div >
-      <label>Posisi Pekerjaan:</label><br />
-      <select on:change={handleJobChange}>
+      <label for="job">Posisi Pekerjaan:</label><br />
+      <select id="job" on:change={handleJobChange}>
         {#each jobs as job}
           <option value={job.position}>{job.position}</option>
         {/each}
@@ -301,7 +318,13 @@
   {#if transcript}
     <div class="transcript" >
       <strong>Jawaban anda:</strong><br />
-      {transcript}
+      <textarea
+        id="transcript"
+        bind:this={textareaEl}
+        bind:value={transcript}
+        rows="3"
+        class="editable-text"
+      ></textarea>
     </div>
   {/if}  
 
